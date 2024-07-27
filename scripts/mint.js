@@ -21,28 +21,32 @@ const sendShieldedTransaction = async (signer, destination, data, value) => {
 
 async function main() {
   // Address of the deployed contract
-  const contractAddress = "0xbb50450cc319667C1fEA681Aa8C2Ba2aA35517ed";
+  const contractAddress = "0x5c0724cF33d7Bc4533F9F834F8fDF79503D744dE";
 
   // Get the signer (your account)
   const [signer] = await hre.ethers.getSigners();
 
   // Create a contract instance
-  const contractFactory = await hre.ethers.getContractFactory("MyToken");
+  const contractFactory = await hre.ethers.getContractFactory("MyERC721Token");
   const contract = contractFactory.attach(contractAddress);
 
-  // Send a shielded transaction to mint 100 tokens in the contract
-  const functionName = "mint100tokens";
-  const mint100TokensTx = await sendShieldedTransaction(
+  // Define the function name and parameters for the mint function
+  const functionName = "mint";
+  const recipient = "0x518f06684b8c0b6D9bE17cAb6434Ff05Ee22e24c"; // Replace with the actual recipient address
+  const encodedFunctionData = contract.interface.encodeFunctionData(functionName, [recipient]);
+
+  // Send a shielded transaction to mint a token in the contract
+  const mintTokenTx = await sendShieldedTransaction(
     signer,
     contractAddress,
-    contract.interface.encodeFunctionData(functionName),
+    encodedFunctionData,
     0
   );
 
-  await mint100TokensTx.wait();
+  await mintTokenTx.wait();
 
   // It should return a TransactionReceipt object
-  console.log("Transaction Receipt: ", mint100TokensTx);
+  console.log("Transaction Receipt: ", mintTokenTx);
 }
 
 // Using async/await pattern to handle errors properly
